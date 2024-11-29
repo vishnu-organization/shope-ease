@@ -1,5 +1,7 @@
-import { Button } from "@mui/material";
-import { useState } from "react";
+import { Button, Table, TableBody, TableHead, TableRow } from "@mui/material";
+import { useEffect, useState } from "react";
+import { TableGrid } from "../Shared";
+import { useStyles } from "./RegistrationForm.styles";
 
 const fields = [
   {
@@ -34,42 +36,38 @@ const RegistrationForm = () => {
     lastName: "",
     phoneNumber: null,
   });
+  const [nuser, setNuser] = useState<any[]>([]);
+  const classes = useStyles();
+  useEffect(() => {
+    const storedUsers = localStorage.getItem("cart");
+    if (storedUsers) {
+      setNuser(JSON.parse(storedUsers));
+    }
+  }, []);
 
   const onSubmithandler = (e: any) => {
+    e.preventDefault();
     if (user.name !== "") {
+      const updatedUsers = [...nuser, user];
+      localStorage.setItem("cart", JSON.stringify(updatedUsers));
+      setNuser(updatedUsers);
       setUser({ name: "", lastName: "", phoneNumber: null });
-      localStorage.setItem("cart", JSON.stringify(user));
-    } else return alert("Name require");
+    } else {
+      alert("Name is required");
+    }
   };
+
   const handelInputChange = (e: any) => {
     const { value, name } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
   };
+
   const disable = user.lastName === "" || user.name === "" || !user.phoneNumber;
 
   return (
-    <>
-      <div
-        style={{
-          background: "linear-gradient(40deg, #252525 10% 40%, gray 60% 50%)",
-          borderRadius: "10px",
-          padding: "20px",
-          border: "4px solid gray",
-          textAlign: "left",
-        }}
-      >
-        <div
-          style={{
-            textAlign: "center",
-            fontSize: "30px",
-            marginBottom: "20px",
-            textDecoration: "underline",
-            fontStyle: "italic",
-            fontWeight: "bold",
-          }}
-        >
-          Enter User Detail
-        </div>
+    <div className={classes.container}>
+      <div className={classes.formContainer}>
+        <div className={classes.formHeader}>Enter User Detail</div>
         <form>
           {fields.map((item, i) => (
             <div
@@ -103,8 +101,8 @@ const RegistrationForm = () => {
           </div>
         </form>
       </div>
-      <div>dsadjkh</div>
-    </>
+      <TableGrid data={nuser} />
+    </div>
   );
 };
 
