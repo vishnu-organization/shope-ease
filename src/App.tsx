@@ -1,6 +1,5 @@
-import { useState } from "react";
 import "./App.css";
-import { HomeScreen, RegistrationForm } from "./Screens";
+import { RegistrationForm } from "./Screens";
 
 function App() {
   return (

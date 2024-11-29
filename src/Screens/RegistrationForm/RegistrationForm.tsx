@@ -1,4 +1,4 @@
-import { Button, Table, TableBody, TableHead, TableRow } from "@mui/material";
+import { Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { TableGrid } from "../Shared";
 import { useStyles } from "./RegistrationForm.styles";
@@ -31,7 +31,7 @@ const fields = [
 ];
 
 const RegistrationForm = () => {
-  const [user, setUser] = useState({
+  const [user, setUser] = useState<any>({
     name: "",
     lastName: "",
     phoneNumber: null,
@@ -59,7 +59,7 @@ const RegistrationForm = () => {
 
   const handelInputChange = (e: any) => {
     const { value, name } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
+    setUser((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const disable = user.lastName === "" || user.name === "" || !user.phoneNumber;

@@ -1,4 +1,3 @@
-import { Button } from "@mui/material";
 import { useStyles } from "./Card.styles";
 
 type Props = {
