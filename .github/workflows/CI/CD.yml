@@ -3,7 +3,7 @@ name: Deploy React App to AWS EC2
 on:
   push:
     branches:
-      - aws-automation # This workflow runs when you push to the `aws-automation` branch
+      - main # This workflow runs when you push to the `main` branch
 
 jobs:
   deploy:
