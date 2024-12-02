@@ -33,20 +33,25 @@ jobs:
         run: |
           # Write the private SSH key from GitHub Secrets to a file
           echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
-          chmod 400 aws_ssh_key.pem  # Set proper file permissions for the private key
+          chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
 
           # SSH into the EC2 instance and deploy the React app
-          ssh -i aws_ssh_key.pem ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-            # Navigate to the app's directory on the EC2 instance
-            cd /var/www/my-react-app  # Replace with your app's actual directory
-
-            # Pull the latest code from GitHub (optional, if you use Git on the server)
-            git pull origin main
+          ssh -i aws_ssh_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Check if the project directory exists. If not, clone the repository.
+            if [ ! -d "/var/www/my-react-app/.git" ]; then
+              # Clone the repository if it doesn't exist
+              cd /var/www
+              git clone https://github.com/<your-github-username>/<your-repo-name>.git my-react-app
+            else
+              # If the repo already exists, pull the latest changes
+              cd /var/www/my-react-app
+              git pull origin main
+            fi
 
             # Install dependencies (if there are any new dependencies)
             npm install
 
-            # Build the React app for production (optional if you want to build on the server)
+            # Build the React app for production
             npm run build
 
             # Restart Nginx (or your web server) to serve the new app
