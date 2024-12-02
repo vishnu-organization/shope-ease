@@ -1,0 +1,54 @@
+name: Deploy React App to AWS EC2
+
+on:
+  push:
+    branches:
+      - main # This workflow runs when you push to the `main` branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # Runs on the latest Ubuntu virtual machine
+
+    steps:
+      # Step 1: Checkout code from GitHub
+      - name: Checkout code
+        uses: actions/checkout@v3 # Fetches the code from GitHub repository
+
+      # Step 2: Set up Node.js (required for React)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Set the Node.js version to use
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install # This will install all the required dependencies (e.g., react-scripts)
+
+      # Step 4: Build the React app
+      - name: Build React app
+        run: npm run build # This creates the optimized production build in the `build/` folder
+
+      # Step 5: Deploy the app to EC2 using SSH
+      - name: Deploy to EC2
+        run: |
+          # Write the private SSH key from GitHub Secrets to a file
+          echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
+          chmod 400 aws_ssh_key.pem  # Set proper file permissions for the private key
+
+          # SSH into the EC2 instance and deploy the React app
+          ssh -i aws_ssh_key.pem ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Navigate to the app's directory on the EC2 instance
+            cd /var/www/my-react-app  # Replace with your app's actual directory
+
+            # Pull the latest code from GitHub (optional, if you use Git on the server)
+            git pull origin main
+
+            # Install dependencies (if there are any new dependencies)
+            npm install
+
+            # Build the React app for production (optional if you want to build on the server)
+            npm run build
+
+            # Restart Nginx (or your web server) to serve the new app
+            sudo systemctl restart nginx
+          EOF
