@@ -28,25 +28,31 @@ jobs:
       - name: Build React app
         run: npm run build # This creates the optimized production build in the `build/` folder
 
-      # Step 5: Deploy the app to EC2 using SSH
+      # Step 5: Deploy to EC2
       - name: Deploy to EC2
         run: |
           # Write the private SSH key from GitHub Secrets to a file
           echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
           chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
+          eval "$(ssh-agent -s)"     # Start SSH agent
+          ssh-add aws_ssh_key.pem    # Add SSH key to the agent
 
           # SSH into the EC2 instance and deploy the React app
-          ssh -i aws_ssh_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Navigate to the workspace folder
+            cd /home/ubuntu/workspace
+
             # Check if the project directory exists. If not, clone the repository.
-            if [ ! -d "/var/www/my-react-app/.git" ]; then
-              # Clone the repository if it doesn't exist
-              cd /var/www
-              git clone https://github.com/<your-github-username>/<your-repo-name>.git my-react-app
+            if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
+              git clone https://github.com/ARVishnu/shope-ease.git shope-ease
             else
               # If the repo already exists, pull the latest changes
-              cd /var/www/my-react-app
+              cd /home/ubuntu/workspace/shope-ease
               git pull origin main
             fi
+
+            # Navigate to the project directory
+            cd /home/ubuntu/workspace/shope-ease
 
             # Install dependencies (if there are any new dependencies)
             npm install
@@ -54,6 +60,12 @@ jobs:
             # Build the React app for production
             npm run build
 
-            # Restart Nginx (or your web server) to serve the new app
+            # Ensure nginx is installed and restart it
+            if ! which nginx > /dev/null; then
+              sudo apt update
+              sudo apt install -y nginx
+            fi
+
+            # Restart Nginx to serve the new build
             sudo systemctl restart nginx
           EOF
