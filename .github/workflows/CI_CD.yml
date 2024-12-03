@@ -55,12 +55,26 @@ jobs:
             # Build the React app for production
             npm run build
 
+                       # Check if the build directory exists
+            if [ ! -d "./dist" ]; then
+              echo "Build directory not found. Exiting."
+              exit 1
+            fi
+
             # Install `http-server` globally to serve the React app (or you can use `serve`)
-            npm install -g http-server
+            echo "Installing http-server..."
+            sudo npm install -g http-server
 
             # Run the app on port 80 using `sudo` (privileged port)
+            echo "Starting server on port 80..."
             sudo nohup http-server ./dist -p 80 &
 
             # Optionally, check if the server is running
-            ps aux | grep http-server
+            echo "Checking if http-server is running..."
+            ps aux | grep http-server || { echo "http-server is not running"; exit 1; }
+
+            # Wait for a few seconds to ensure the server starts up
+            sleep 5
+
+            echo "Deployment successful!"
           EOF
