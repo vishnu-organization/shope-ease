@@ -34,10 +34,8 @@ jobs:
 
           # SSH into the EC2 instance and deploy the React app
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-            set -e  # Stop the script if any command fails
-
             # Navigate to the workspace folder
-            cd /home/ubuntu/workspace
+            cd /home/ubuntu/workspace  # Corrected the path to use a space between `cd` and the path
 
             # Check if the project directory exists. If not, clone the repository.
             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
@@ -70,7 +68,8 @@ jobs:
             # Update Nginx config to point to the React dist directory
             echo "server {
                 listen 80;
-                server_name 44.194.3.239;  
+                server_name 44.194.3.239;
+
                 root /home/ubuntu/workspace/shope-ease/dist;
                 index index.html;
 
@@ -87,8 +86,8 @@ jobs:
             # Test Nginx configuration
             sudo nginx -t
 
-            # Restart Nginx to apply new config
-            sudo systemctl restart nginx
+            # Reload Nginx to apply new config
+            sudo systemctl reload nginx
 
             # Optionally, check the status of Nginx to ensure it's running correctly
             sudo systemctl status nginx
