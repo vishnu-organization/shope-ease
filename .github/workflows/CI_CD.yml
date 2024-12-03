@@ -59,7 +59,7 @@ jobs:
             npm install -g http-server
 
             # Run the app on port 80 using `sudo` (privileged port)
-            sudo nohup http-server ./build -p 80 &
+            sudo nohup http-server ./dist -p 80 &
 
             # Optionally, check if the server is running
             ps aux | grep http-server
