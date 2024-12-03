@@ -3,32 +3,27 @@ name: Deploy React App to AWS EC2
 on:
   push:
     branches:
-      - main # This workflow runs when you push to the `main` branch
+      - main
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest # Runs on the latest Ubuntu virtual machine
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code from GitHub
       - name: Checkout code
-        uses: actions/checkout@v3 # Fetches the code from GitHub repository
+        uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js (required for React)
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18" # Set the Node.js version to use
+          node-version: "18"
 
-      # Step 3: Install dependencies
       - name: Install dependencies
-        run: npm install # This will install all the required dependencies (e.g., react-scripts)
+        run: npm install
 
-      # Step 4: Build the React app
       - name: Build React app
-        run: npm run build # This creates the optimized production build in the `build/` folder
+        run: npm run build
 
-      # Step 5: Deploy to EC2
       - name: Deploy to EC2
         run: |
           # Write the private SSH key from GitHub Secrets to a file
