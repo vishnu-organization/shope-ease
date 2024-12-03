@@ -68,7 +68,7 @@ jobs:
             # Update Nginx config to point to the React dist directory
             echo "server {
                 listen 80;
-                server_name _;
+                server_name 44.194.3.239;
 
                 root /home/ubuntu/workspace/shope-ease/dist;
                 index index.html;
