@@ -61,6 +61,6 @@ jobs:
             fi
 
             # Serve the app on port 80
-            serve -s build -l 80
+            serve -s dist -l 80
 
           EOF
