@@ -55,7 +55,7 @@ jobs:
             # Build the React app for production
             npm run build
 
-                       # Check if the build directory exists
+            # Check if the build directory exists
             if [ ! -d "./dist" ]; then
               echo "Build directory not found. Exiting."
               exit 1
@@ -65,9 +65,12 @@ jobs:
             echo "Installing http-server..."
             sudo npm install -g http-server
 
-            # Run the app on port 80 using `sudo` (privileged port)
+            # Run the app on port 80 using `sudo` (privileged port) in the background and disown it
             echo "Starting server on port 80..."
             sudo nohup http-server ./dist -p 80 &
+
+            # Disown the background process so it doesn't hang the session
+            disown
 
             # Optionally, check if the server is running
             echo "Checking if http-server is running..."
