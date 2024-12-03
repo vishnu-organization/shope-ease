@@ -55,40 +55,12 @@ jobs:
             # Build the React app for production
             npm run build
 
-            # Ensure nginx is installed and restart it
-            if ! which nginx > /dev/null; then
-              sudo apt update
-              sudo apt install -y nginx
+           # Install serve to serve static files
+            if ! which serve > /dev/null; then
+              sudo npm install -g serve
             fi
 
-            # Set the right permissions for Nginx to serve the app
-            sudo chown -R www-data:www-data /home/ubuntu/workspace/shope-ease/dist
-            sudo chmod -R 755 /home/ubuntu/workspace/shope-ease/dist
+            # Serve the app on port 80
+            serve -s build -l 80
 
-            # Update Nginx config to point to the React dist directory
-            echo "server {
-                listen 80;
-                server_name 44.194.3.239;
-
-                root /home/ubuntu/workspace/shope-ease/dist;
-                index index.html;
-
-                location / {
-                    try_files \$uri /index.html;
-                }
-
-                location ~* \.(?:css|js|woff2|ttf|svg|eot|otf)\$ {
-                    expires 1y;
-                    add_header Cache-Control 'public, immutable';
-                }
-            }" | sudo tee /etc/nginx/sites-available/default
-
-            # Test Nginx configuration
-            sudo nginx -t
-
-            # Reload Nginx to apply new config
-            sudo systemctl reload nginx
-
-            # Optionally, check the status of Nginx to ensure it's running correctly
-            sudo systemctl status nginx
           EOF
