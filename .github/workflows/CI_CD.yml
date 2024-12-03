@@ -65,9 +65,17 @@ jobs:
             echo "Installing http-server..."
             sudo npm install -g http-server
 
-            # Run the app on port 80 using `sudo` (privileged port) in the background and disown it
+            # Check if port 80 is already in use and kill the process if it is
+            echo "Checking if port 80 is in use..."
+            PID=$(sudo lsof -t -i:80)
+            if [ -n "$PID" ]; then
+              echo "Port 80 is already in use. Killing process with PID: $PID"
+              sudo kill -9 $PID
+            fi
+
+            # Run the app on port 80 using `nohup` without `sudo` (running as the ubuntu user)
             echo "Starting server on port 80..."
-            sudo nohup http-server ./dist -p 80 &
+            nohup http-server ./dist -p 80 &
 
             # Disown the background process so it doesn't hang the session
             disown
