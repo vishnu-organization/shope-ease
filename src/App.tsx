@@ -5,6 +5,8 @@ function App() {
   return (
     <>
       <RegistrationForm />
+
+      <h1>test demo acc</h1>
       {/* <HomeScreen /> */}
     </>
   );
