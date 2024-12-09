@@ -1,5 +1,5 @@
 import "./App.css";
-import { RegistrationForm } from "./Screens";
+import { HomeScreen, RegistrationForm } from "./Screens";
 
 function App() {
   return (

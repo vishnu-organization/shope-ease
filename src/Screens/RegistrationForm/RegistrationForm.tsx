@@ -9,7 +9,6 @@ const fields = [
     type: "text",
     placeholder: "Enter Your Name",
     label: "Name",
-    rules: "required|string",
     value: "",
   },
   {
@@ -17,7 +16,6 @@ const fields = [
     type: "text",
     placeholder: "Enter Your Last Name",
     label: "Last Name",
-    rules: "required|string",
     value: "",
   },
   {
@@ -25,7 +23,6 @@ const fields = [
     type: "number",
     placeholder: "Enter Your Phone Number",
     label: "Phone Number",
-    rules: "required|string",
     value: null,
   },
 ];
