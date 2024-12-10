@@ -53,35 +53,27 @@ jobs:
 
             # Create a Dockerfile if it doesn't already exist
             if [ ! -f "Dockerfile" ]; then
-              cat <<EOF2 > Dockerfile
-              # Step 1: Use an official Node.js image as a base
+              cat << 'EOF2' > Dockerfile
+              # Use an official Node.js image as the build stage
               FROM node:18-alpine as build
 
-              # Step 2: Set the working directory inside the container
+              # Set working directory
               WORKDIR /app
 
-              # Step 3: Copy the package.json and package-lock.json to install dependencies
+              # Copy package files and install dependencies
               COPY package*.json ./
-
-              # Step 4: Install the dependencies
               RUN npm install
 
-              # Step 5: Copy the source code into the container
+              # Copy source code and build the app
               COPY . .
-
-              # Step 6: Build the React app
               RUN npm run build
 
-              # Step 7: Use Nginx to serve the React app
+              # Use Nginx for the final stage to serve static files
               FROM nginx:alpine
+              COPY --from=build /app/build /usr/share/nginx/html
 
-              # Step 8: Copy the build folder from the build stage to Nginx's public directory
-              COPY --from=dist /app/dist /usr/share/nginx/html
-
-              # Step 9: Expose port 80
+              # Expose port 80
               EXPOSE 80
-
-              # Step 10: Run Nginx (it will start the web server)
               CMD ["nginx", "-g", "daemon off;"]
               EOF2
             fi
@@ -89,10 +81,12 @@ jobs:
             # Build the Docker image
             sudo docker build -t react-app .
 
-            # Run the Docker container (make sure to kill any previous containers)
+            # Stop and remove any existing container
             sudo docker ps -q --filter "name=react-app" | xargs -r sudo docker stop
             sudo docker ps -a -q --filter "name=react-app" | xargs -r sudo docker rm
-            sudo docker run -d -p 80:80 react-app
+
+            # Run the Docker container
+            sudo docker run -d -p 80:80 --name react-app react-app
 
             # Clean up
             sudo docker system prune -f
