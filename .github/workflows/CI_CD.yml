@@ -1,91 +1,91 @@
-# name: Deploy React App to AWS EC2
+name: Deploy React App to AWS EC2
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: "18"
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
 
-#       - name: Install dependencies
-#         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-#       - name: Build React app
-#         run: npm run build
+      - name: Build React app
+        run: npm run build
 
-#       - name: Deploy to EC2
-#         run: |
-#           # Write the private SSH key from GitHub Secrets to a file
-#           echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
-#           chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
-#           eval "$(ssh-agent -s)"     # Start SSH agent
-#           ssh-add aws_ssh_key.pem    # Add SSH key to the agent
+      - name: Deploy to EC2
+        run: |
+          # Write the private SSH key from GitHub Secrets to a file
+          echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
+          chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
+          eval "$(ssh-agent -s)"     # Start SSH agent
+          ssh-add aws_ssh_key.pem    # Add SSH key to the agent
 
-#           # SSH into the EC2 instance and deploy the React app
-#           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-#             # Navigate to the workspace folder
-#             cd /home/ubuntu/workspace  # Corrected the path to use a space between `cd` and the path
+          # SSH into the EC2 instance and deploy the React app
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Navigate to the workspace folder
+            cd /home/ubuntu/workspace  # Corrected the path to use a space between `cd` and the path
 
-#             # Check if the project directory exists. If not, clone the repository.
-#             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
-#               git clone https://github.com/ARVishnu/shope-ease.git shope-ease
-#             else
-#               # If the repo already exists, pull the latest changes
-#               cd /home/ubuntu/workspace/shope-ease
-#               git pull origin main
-#             fi
+            # Check if the project directory exists. If not, clone the repository.
+            if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
+              git clone https://github.com/ARVishnu/shope-ease.git shope-ease
+            else
+              # If the repo already exists, pull the latest changes
+              cd /home/ubuntu/workspace/shope-ease
+              git pull origin main
+            fi
 
-#             # Navigate to the project directory
-#             cd /home/ubuntu/workspace/shope-ease
+            # Navigate to the project directory
+            cd /home/ubuntu/workspace/shope-ease
 
-#             # Install dependencies (if there are any new dependencies)
-#             npm install
+            # Install dependencies (if there are any new dependencies)
+            npm install
 
-#             # Build the React app for production
-#             npm run build
+            # Build the React app for production
+            npm run build
 
-#           # Check if the build directory exists
-#           if [ ! -d "./dist" ]; then
-#             echo "Build directory not found. Exiting."
-#             exit 1
-#           fi
+          # Check if the build directory exists
+          if [ ! -d "./dist" ]; then
+            echo "Build directory not found. Exiting."
+            exit 1
+          fi
 
-#           # Install `http-server` globally to serve the React app (or you can use `serve`)
-#           echo "Installing http-server..."
-#           sudo npm install -g http-server
+          # Install `http-server` globally to serve the React app (or you can use `serve`)
+          echo "Installing http-server..."
+          sudo npm install -g http-server
 
-#           # Check if port 80 is already in use and kill the process if it is
-#           echo "Checking if port 80 is in use..."
-#           PID=$(sudo lsof -t -i:80)
-#           if [ -n "$PID" ]; then
-#             echo "Port 80 is already in use. Killing process with PID: $PID"
-#             sudo kill -9 $PID
-#           fi
+          # Check if port 80 is already in use and kill the process if it is
+          echo "Checking if port 80 is in use..."
+          PID=$(sudo lsof -t -i:80)
+          if [ -n "$PID" ]; then
+            echo "Port 80 is already in use. Killing process with PID: $PID"
+            sudo kill -9 $PID
+          fi
 
-#           # Run the app on port 80 using `sudo` (privileged port)
-#           echo "Starting server on port 80..."
-#           sudo nohup http-server ./dist -p 80 &
+          # Run the app on port 80 using `sudo` (privileged port)
+          echo "Starting server on port 80..."
+          sudo nohup http-server ./dist -p 80 &
 
-#           # Disown the background process so it doesn't hang the session
-#           disown
+          # Disown the background process so it doesn't hang the session
+          disown
 
-#           # Optionally, check if the server is running
-#           echo "Checking if http-server is running..."
-#           ps aux | grep http-server || { echo "http-server is not running"; exit 1; }
+          # Optionally, check if the server is running
+          echo "Checking if http-server is running..."
+          ps aux | grep http-server || { echo "http-server is not running"; exit 1; }
 
-#           # Wait for a few seconds to ensure the server starts up
-#           sleep 5
+          # Wait for a few seconds to ensure the server starts up
+          sleep 5
 
-#           echo "Deployment successful!"
-#           EOF
+          echo "Deployment successful!"
+          EOF
