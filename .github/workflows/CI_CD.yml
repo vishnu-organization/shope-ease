@@ -33,61 +33,34 @@ jobs:
           ssh-add aws_ssh_key.pem    # Add SSH key to the agent
 
           # SSH into the EC2 instance and deploy the React app
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-            # Navigate to the workspace folder
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
             cd /home/ubuntu/workspace
 
-            # Check if the project directory exists. If not, clone the repository.
             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
-              echo "Cloning private repository..."
               git clone https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git shope-ease
             else
-              # If the repo already exists, pull the latest changes
               cd /home/ubuntu/workspace/shope-ease
-              echo "Pulling latest changes from private repository..."
               git pull https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git main
             fi
 
-            # Navigate to the project directory
             cd /home/ubuntu/workspace/shope-ease
-
-            # Install dependencies (if there are any new dependencies)
             npm install
-
-            # Build the React app for production
             npm run build
 
-            # Check if the build directory exists
             if [ ! -d "./dist" ]; then
               echo "Build directory not found. Exiting."
               exit 1
             fi
 
-            # Install `http-server` globally to serve the React app (or you can use `serve`)
-            echo "Installing http-server..."
             sudo npm install -g http-server
-
-            # Check if port 80 is already in use and kill the process if it is
-            echo "Checking if port 80 is in use..."
             PID=$(sudo lsof -t -i:80)
             if [ -n "$PID" ]; then
-              echo "Port 80 is already in use. Killing process with PID: $PID"
               sudo kill -9 $PID
             fi
 
-            # Run the app on port 80 using `sudo` (privileged port)
-            echo "Starting server on port 80..."
             sudo nohup http-server ./dist -p 80 &
-
-            # Disown the background process so it doesn't hang the session
             disown
-
-            # Optionally, check if the server is running
-            echo "Checking if http-server is running..."
-            ps aux | grep http-server || { echo "http-server is not running"; exit 1; }
-
-            # Wait for a few seconds to ensure the server starts up
             sleep 5
-
             echo "Deployment successful!"
+            exit
           EOF
