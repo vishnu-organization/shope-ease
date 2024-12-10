@@ -48,12 +48,13 @@ jobs:
             # Clone the repository or pull the latest changes
             if [ ! -d "shope-ease" ]; then
               git clone https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git
+              cd shope-ease
             else
               cd shope-ease
               git pull https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git main
             fi
 
-            cd shope-ease
+           
 
             # Copy the Dockerfile to EC2 if it doesn't already exist
             if [ ! -f Dockerfile ]; then
