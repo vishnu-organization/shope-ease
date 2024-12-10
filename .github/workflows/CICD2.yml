@@ -1,0 +1,102 @@
+name: Deploy React App to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Create Docker image and Deploy to EC2
+        run: |
+          # Write the private SSH key from GitHub Secrets to a file
+          echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
+          chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
+          eval "$(ssh-agent -s)"     # Start SSH agent
+          ssh-add aws_ssh_key.pem    # Add SSH key to the agent
+
+          # SSH into the EC2 instance and deploy the Dockerized React app
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Navigate to the workspace
+            cd /home/ubuntu/workspace
+
+            # Clone the repo if it doesn't exist, or pull the latest changes
+            if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
+              git clone https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git shope-ease
+            else
+              cd /home/ubuntu/workspace/shope-ease
+              git pull https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git main
+            fi
+
+            cd /home/ubuntu/workspace/shope-ease
+
+            # Build the React app
+            npm install
+            npm run build
+
+            # Create a Dockerfile if it doesn't already exist
+            if [ ! -f "Dockerfile" ]; then
+              cat <<EOF2 > Dockerfile
+              # Step 1: Use an official Node.js image as a base
+              FROM node:18-alpine as build
+
+              # Step 2: Set the working directory inside the container
+              WORKDIR /app
+
+              # Step 3: Copy the package.json and package-lock.json to install dependencies
+              COPY package*.json ./
+
+              # Step 4: Install the dependencies
+              RUN npm install
+
+              # Step 5: Copy the source code into the container
+              COPY . .
+
+              # Step 6: Build the React app
+              RUN npm run build
+
+              # Step 7: Use Nginx to serve the React app
+              FROM nginx:alpine
+
+              # Step 8: Copy the build folder from the build stage to Nginx's public directory
+              COPY --from=dist /app/dist /usr/share/nginx/html
+
+              # Step 9: Expose port 80
+              EXPOSE 80
+
+              # Step 10: Run Nginx (it will start the web server)
+              CMD ["nginx", "-g", "daemon off;"]
+              EOF2
+            fi
+
+            # Build the Docker image
+            sudo docker build -t react-app .
+
+            # Run the Docker container (make sure to kill any previous containers)
+            sudo docker ps -q --filter "name=react-app" | xargs -r sudo docker stop
+            sudo docker ps -a -q --filter "name=react-app" | xargs -r sudo docker rm
+            sudo docker run -d -p 80:80 react-app
+
+            # Clean up
+            sudo docker system prune -f
+
+            echo "Deployment successful!"
+            exit
+          EOF
