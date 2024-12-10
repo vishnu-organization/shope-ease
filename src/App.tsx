@@ -5,7 +5,7 @@ function App() {
   return (
     <>
       <RegistrationForm />
-<!--       <HomeScreen /> -->
+      {/* <HomeScreen /> */}
     </>
   );
 }
