@@ -1,32 +1,29 @@
-# Stage 1: Build React app
+# Base image
 FROM node:18 as build
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json for npm install
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
+# Copy the rest of the application files
 COPY . .
 
 # Build the React app
 RUN npm run build
 
-# Stage 2: Serve with Nginx
-FROM nginx:1.21.6-alpine
+# Use Nginx to serve the React app
+FROM nginx:stable-alpine
 
-# Set the working directory inside the container for Nginx
-WORKDIR /usr/share/nginx/html
+# Copy the built files to the Nginx HTML folder
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy the built React app from the build stage to the Nginx directory
-COPY --from=build /app/build .
-
-# Expose port 80 for the web server
+# Expose port 80
 EXPOSE 80
 
-# Start Nginx in the foreground
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
