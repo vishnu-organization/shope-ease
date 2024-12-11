@@ -1,103 +1,103 @@
-# name: Deploy React App to AWS EC2 with Docker
+name: Deploy React App to AWS EC2 with Docker
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: "18"
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
 
-#       - name: Install dependencies
-#         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-#       - name: Build React app
-#         run: npm run build
+      - name: Build React app
+        run: npm run build
 
-#       - name: Deploy Dockerized React App to EC2
-#         run: |
-#           echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
-#           chmod 600 aws_ssh_key.pem
-#           eval "$(ssh-agent -s)"
-#           ssh-add aws_ssh_key.pem
+      - name: Deploy Dockerized React App to EC2
+        run: |
+          echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
+          chmod 600 aws_ssh_key.pem
+          eval "$(ssh-agent -s)"
+          ssh-add aws_ssh_key.pem
 
-#           ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-#             set -e
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            set -e
 
-#             # Install Docker if not already installed
-#             if ! command -v docker &> /dev/null; then
-#               sudo apt-get update
-#               sudo apt-get install -y docker.io
-#             fi
+            # Install Docker if not already installed
+            if ! command -v docker &> /dev/null; then
+              sudo apt-get update
+              sudo apt-get install -y docker.io
+            fi
 
-#             mkdir -p /home/ubuntu/workspace
-#             cd /home/ubuntu/workspace
+            mkdir -p /home/ubuntu/workspace
+            cd /home/ubuntu/workspace
 
-#             # Clone or update the repository
-#             if [ ! -d "shope-ease" ]; then
-#               git clone https://github.com/first-repo-vishnu/shope-ease
-#               cd shope-ease
-#             else
-#               cd shope-ease
-#               git pull origin main
-#             fi
+            # Clone or update the repository
+            if [ ! -d "shope-ease" ]; then
+              git clone https://github.com/first-repo-vishnu/shope-ease
+              cd shope-ease
+            else
+              cd shope-ease
+              git pull origin main
+            fi
 
-#             # Docker Container Cleanup
-#             CONTAINER_NAME=react-app
-#             if sudo docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
-#               sudo docker stop $CONTAINER_NAME
-#               sudo docker rm $CONTAINER_NAME
-#             fi
+            # Docker Container Cleanup
+            CONTAINER_NAME=react-app
+            if sudo docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
+              sudo docker stop $CONTAINER_NAME
+              sudo docker rm $CONTAINER_NAME
+            fi
 
-#             # Generate Dockerfile
-#             cat << 'EOF2' > Dockerfile
-#             # Stage 1: Build React app
-#             FROM node:18 as build
+            # Generate Dockerfile
+            cat << 'EOF2' > Dockerfile
+            # Stage 1: Build React app
+            FROM node:18 as build
 
-#             # Set the working directory inside the container
-#             WORKDIR /app
+            # Set the working directory inside the container
+            WORKDIR /app
 
-#             # Copy package.json and package-lock.json for npm install
-#             COPY package.json package-lock.json ./
+            # Copy package.json and package-lock.json for npm install
+            COPY package.json package-lock.json ./
 
-#             # Install dependencies
-#             RUN npm install
+            # Install dependencies
+            RUN npm install
 
-#             # Copy the rest of the application code
-#             COPY . .
+            # Copy the rest of the application code
+            COPY . .
 
-#             # Build the React app
-#             RUN npm run build
+            # Build the React app
+            RUN npm run build
 
-#             # Stage 2: Serve with Nginx
-#             FROM nginx:1.21.6-alpine
+            # Stage 2: Serve with Nginx
+            FROM nginx:1.21.6-alpine
 
-#             # Set the working directory inside the container for Nginx
-#             WORKDIR /usr/share/nginx/html
+            # Set the working directory inside the container for Nginx
+            WORKDIR /usr/share/nginx/html
 
-#             # Copy the built React app from the build stage to the Nginx directory
-#             COPY --from=dist /app/dist .
+            # Copy the built React app from the build stage to the Nginx directory
+            COPY --from=dist /app/dist .
 
-#             # Expose port 80 for the web server
-#             EXPOSE 80
+            # Expose port 80 for the web server
+            EXPOSE 80
 
-#             # Start Nginx in the foreground
-#             CMD ["nginx", "-g", "daemon off;"]
-#             EOF2
+            # Start Nginx in the foreground
+            CMD ["nginx", "-g", "daemon off;"]
+            EOF2
 
-#             # Build and run Docker container
-#             sudo docker build -t react-app .
-#             sudo docker run -d -p 80:80 --name react-app react-app
+            # Build and run Docker container
+            sudo docker build -t react-app .
+            sudo docker run -d -p 80:80 --name react-app react-app
 
-#             echo "Deployment successful!"
-#           EOF
+            echo "Deployment successful!"
+          EOF
