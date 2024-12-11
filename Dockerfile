@@ -16,7 +16,6 @@ COPY . .
 # Build the React app
 RUN npm run build
 
-# Stage 2: Serve with Nginx
 FROM nginx:1.21.6-alpine
 
 # Set the working directory inside the container for Nginx
