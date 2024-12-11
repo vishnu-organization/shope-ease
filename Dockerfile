@@ -24,8 +24,6 @@ WORKDIR /usr/share/nginx/html
 # Copy the built React app from the build stage to the Nginx directory
 COPY --from=build /app/build .
 
-# Expose port 80 for the web server
 EXPOSE 80
 
-# Start Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]
