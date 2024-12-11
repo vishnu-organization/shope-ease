@@ -37,7 +37,8 @@ jobs:
             cd /home/ubuntu/workspace
 
             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
-              git clone https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git shope-ease
+              git clone https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/${{ secrets.USERNAME }}/shope-ease.git shope-ease
+
             else
               cd /home/ubuntu/workspace/shope-ease
               git pull https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/ARVishnu/shope-ease.git main
