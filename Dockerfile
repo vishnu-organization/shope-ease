@@ -1,6 +1,7 @@
 # Stage 1: Build React app
 FROM node:18 as build
 
+# Set the working directory inside the container
 WORKDIR /app
 
 # Copy package.json and package-lock.json for npm install
@@ -22,7 +23,7 @@ FROM nginx:1.21.6-alpine
 WORKDIR /usr/share/nginx/html
 
 # Copy the built React app from the build stage to the Nginx directory
-COPY --from=dist /app/dist .
+COPY --from=build /app/build .
 
 # Expose port 80 for the web server
 EXPOSE 80
