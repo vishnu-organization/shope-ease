@@ -1,7 +1,6 @@
 # Stage 1: Build React app
 FROM node:18 as build
 
-# Set the working directory inside the container
 WORKDIR /app
 
 # Copy package.json and package-lock.json for npm install
