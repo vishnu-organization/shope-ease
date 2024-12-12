@@ -76,7 +76,7 @@ const RegistrationForm = () => {
                 alignItems: "center",
               }}
             >
-              <div style={{ width: "200px" }}>{item.label}</div>
+              <div style={{ width: "200px", color: "white" }}>{item.label}</div>
               <input
                 type={item.type}
                 placeholder={item.placeholder}

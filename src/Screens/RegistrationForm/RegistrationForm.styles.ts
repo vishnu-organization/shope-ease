@@ -19,5 +19,6 @@ export const useStyles = makeStyles(() => ({
     textDecoration: "underline",
     fontStyle: "italic",
     fontWeight: "bold",
+    color: "white",
   },
 }));
