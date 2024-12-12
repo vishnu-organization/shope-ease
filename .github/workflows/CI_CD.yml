@@ -63,7 +63,7 @@ jobs:
             sudo rm -rf /var/www/html/*
 
             # Copy the new build to Nginx's web directory
-            sudo cp -r ./dist/* /var/www/html/
+            sudo cp -r dist/ /var/www/html/shope-ease
 
             # Set proper ownership for the files in Nginx's web directory
             sudo chown -R www-data:www-data /var/www/html/shope-ease
@@ -71,7 +71,7 @@ jobs:
             sudo chomd -R 755/var/www/html/shope-ease
 
             sudo nginx -t
-            
+
             # Restart Nginx to apply the changes
             sudo systemctl restart nginx
 
