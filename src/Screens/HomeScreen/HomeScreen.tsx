@@ -49,18 +49,15 @@ const HomeScreen = () => {
     dummyJsonApi();
   }, []);
 
-  console.log(products);
-
   const searchData = products.filter((data) =>
     data.title.toLowerCase().includes(inputValue.toLowerCase())
   );
-  console.log(searchData);
 
   return (
     <>
       {loader ? (
         <div className={classes.container}>
-          <CircularProgress color="inherit" />
+          <CircularProgress color="warning" />
         </div>
       ) : (
         <>

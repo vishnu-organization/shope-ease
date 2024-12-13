@@ -1,15 +1,34 @@
 import "./App.css";
 import { Navbar } from "./Components";
-import { RegistrationForm } from "./Screens";
+import { HomeScreen, RegistrationForm } from "./Screens";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
     <>
-      <Navbar />
+      {/* <Navbar />
       <div className="homeContainer">
         <RegistrationForm />
-        {/* <HomeScreen /> */}
-      </div>
+        <HomeScreen />
+
+        <Router>
+          <div>
+            <Routes>
+              <Route path="/" element={<RegistrationForm />} />
+              <Route path="/product" element={<HomeScreen />} />
+            </Routes>
+          </div>
+        </Router>
+      </div> */}
+      <Router>
+        <Navbar />
+        <div className="homeContainer">
+          <Routes>
+            <Route path="/" element={<RegistrationForm />} />
+            <Route path="/products" element={<HomeScreen />} />
+          </Routes>
+        </div>
+      </Router>
     </>
   );
 }
