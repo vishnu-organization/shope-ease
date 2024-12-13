@@ -19,8 +19,16 @@ const Card = ({ title, description, imgUrl }: Props) => {
           }}
         />
       </div>
-      <p style={{ fontWeight: "bold", textDecoration: "underline" }}>{title}</p>
-      <p>{description}</p>
+      <p
+        style={{
+          fontWeight: "bold",
+          textDecoration: "underline",
+          color: "white",
+        }}
+      >
+        {title}
+      </p>
+      <p style={{ color: "white" }}>{description}</p>
     </div>
   );
 };
