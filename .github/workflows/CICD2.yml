@@ -1,85 +1,81 @@
-# name: Deploy React App to AWS EC2 with Docker
+name: Deploy React App to EC2 with Docker and Nginx
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main # Trigger on push to the main branch
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: "18"
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-#       - name: Install dependencies
-#         run: npm install
+      - name: Build Docker image
+        run: |
+          # Build Docker image for the React app with Nginx
+          docker build -t my-react-app .
 
-#       - name: Build React app
-#         run: npm run build
+      - name: Push Docker image to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push my-react-app
 
-#       - name: Deploy Dockerized React App to EC2
-#         run: |
-#           echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
-#           chmod 600 aws_ssh_key.pem
-#           eval "$(ssh-agent -s)"
-#           ssh-add aws_ssh_key.pem
+      - name: SSH into EC2 and deploy the app
+        run: |
+          echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
+          chmod 600 aws_ssh_key.pem
+          eval "$(ssh-agent -s)"
+          ssh-add aws_ssh_key.pem
 
-#           ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-#             set -e
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Navigate to the workspace directory
+            cd /home/ubuntu/workspace
 
-#             # Install Docker if not already installed
-#             if ! command -v docker &> /dev/null; then
-#               sudo apt-get update
-#               sudo apt-get install -y docker.io
-#             fi
+            # Clone or update the repository
+            if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
+              git clone https://github.com/ARVishnu/shope-ease.git shope-ease
+            else
+              cd /home/ubuntu/workspace/shope-ease
+              git pull origin main  # Pull the latest changes from the public repo
+            fi
 
-#             mkdir -p /home/ubuntu/workspace
-#             cd /home/ubuntu/workspace
+            # Navigate to the project folder and build the React app
+            cd /home/ubuntu/workspace/shope-ease
+            npm install
+            npm run build
 
-#             # Clone or update the repository
-#             if [ ! -d "shope-ease" ]; then
-#               git clone https://github.com/first-repo-vishnu/shope-ease
-#               cd shope-ease
-#             else
-#               cd shope-ease
-#               git pull origin main
-#             fi
+            # Check if dist folder exists
+            if [ ! -d "./dist" ]; then
+              echo "Build directory not found. Exiting."
+              exit 1
+            fi
 
-#             # Docker Container Cleanup
-#             CONTAINER_NAME=react-app
-#             if sudo docker ps -a --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
-#               sudo docker stop $CONTAINER_NAME
-#               sudo docker rm $CONTAINER_NAME
-#             fi
+            # Ensure Docker is installed
+            if ! command -v docker &> /dev/null; then
+              echo "Docker could not be found. Installing Docker..."
+              sudo apt-get update
+              sudo apt-get install -y docker.io
+            fi
 
-#             # Generate Dockerfile
-#             cat << 'EOF2' > Dockerfile
-#             # Stage 1: Build React app
-#             FROM node:18-buster as build
-#             WORKDIR /app
-#             COPY package.json package-lock.json ./
-#             RUN npm install
-#             COPY . .
-#             RUN npm run build
+            # Pull the Docker image
+            docker pull my-react-app
 
-#             # Stage 2: Serve with Nginx
-#             FROM nginx:1.21.6-alpine
-#             WORKDIR /usr/share/nginx/html
-#             COPY --from=build /app/build .
-#             EXPOSE 80
-#             CMD ["nginx", "-g", "daemon off;"]
-#             EOF2
+            # Stop and remove any running container
+            docker stop react-app-container || true
+            docker rm react-app-container || true
 
-#             # Build and run Docker container
-#             sudo docker build -t react-app .
-#             sudo docker run -d -p 80:80 --name react-app react-app
+            # Run the React app inside a Docker container with Nginx
+            docker run -d --name react-app-container -p 80:80 my-react-app
 
-#             echo "Deployment successful!"
-#           EOF
+            # Restart Nginx to ensure it's serving the app
+            sudo systemctl restart nginx
+
+            echo "Deployment successful!"
+            exit
+          EOF
