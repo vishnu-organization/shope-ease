@@ -71,7 +71,7 @@ jobs:
             docker rm react-app-container || true
 
             # Run the React app inside a Docker container with Nginx
-            docker run -d --name react-app-container -p 80:80 my-react-app
+            docker run -d --name react-app-container -p 80:80 vishnuenest/my-react-app:latest
 
             # Restart Nginx to ensure it's serving the app
             sudo systemctl restart nginx
