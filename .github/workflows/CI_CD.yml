@@ -1,83 +1,83 @@
-# name: Deploy React App to AWS EC2
+name: Deploy React App to AWS EC2
 
-# on:
-#   push:
-#     branches:
-#       - main # Trigger on push to main branch
+on:
+  push:
+    branches:
+      - maincicd # Trigger on push to main branch
 
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: "18" # Adjust Node.js version as per your requirements
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Adjust Node.js version as per your requirements
 
-#       - name: Install dependencies
-#         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-#       - name: Build React app
-#         run: npm run build # Builds the React app into the dist folder
+      - name: Build React app
+        run: npm run build # Builds the React app into the dist folder
 
-#       - name: Deploy to EC2 with Nginx
-#         run: |
-#           # Write the private SSH key from GitHub Secrets to a file
-#           echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
-#           chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
-#           eval "$(ssh-agent -s)"     # Start SSH agent
-#           ssh-add aws_ssh_key.pem    # Add SSH key to the agent
+      - name: Deploy to EC2 with Nginx
+        run: |
+          # Write the private SSH key from GitHub Secrets to a file
+          echo "${{ secrets.AWS_SSH_KEY }}" > aws_ssh_key.pem
+          chmod 600 aws_ssh_key.pem  # Set proper file permissions for the private key
+          eval "$(ssh-agent -s)"     # Start SSH agent
+          ssh-add aws_ssh_key.pem    # Add SSH key to the agent
 
-#           # SSH into the EC2 instance and deploy the React app
-#           ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
-#             # Navigate to workspace directory
-#             cd /home/ubuntu/workspace
+          # SSH into the EC2 instance and deploy the React app
+          ssh -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP }} << 'EOF'
+            # Navigate to workspace directory
+            cd /home/ubuntu/workspace
 
-#             # Clone the repository (no need for authentication as repo is public)
-#             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
-#               git clone https://github.com/ARVishnu/shope-ease.git shope-ease
-#             else
-#               cd /home/ubuntu/workspace/shope-ease
-#               git pull origin main  # Pull the latest changes from the public repo
-#             fi
+            # Clone the repository (no need for authentication as repo is public)
+            if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
+              git clone https://github.com/ARVishnu/shope-ease.git shope-ease
+            else
+              cd /home/ubuntu/workspace/shope-ease
+              git pull origin main  # Pull the latest changes from the public repo
+            fi
 
-#             # Navigate to the project folder and build the app
-#             cd /home/ubuntu/workspace/shope-ease
-#             npm install
-#             npm run build
+            # Navigate to the project folder and build the app
+            cd /home/ubuntu/workspace/shope-ease
+            npm install
+            npm run build
 
-#             # Check if dist folder exists
-#             if [ ! -d "./dist" ]; then
-#               echo "Build directory not found. Exiting."
-#               exit 1
-#             fi
+            # Check if dist folder exists
+            if [ ! -d "./dist" ]; then
+              echo "Build directory not found. Exiting."
+              exit 1
+            fi
 
-#             # Ensure Nginx is stopped before deploying the new build
-#             sudo systemctl stop nginx
+            # Ensure Nginx is stopped before deploying the new build
+            sudo systemctl stop nginx
 
-#             # Remove old files from the Nginx directory
-#             sudo rm -rf /var/www/html/*
+            # Remove old files from the Nginx directory
+            sudo rm -rf /var/www/html/*
 
-#             # Copy the new build to Nginx's web directory
-#             sudo cp -r dist/ /var/www/html/shope-ease
+            # Copy the new build to Nginx's web directory
+            sudo cp -r dist/ /var/www/html/shope-ease
 
-#             # Set proper ownership for the files in Nginx's web directory
-#             sudo chown -R www-data:www-data /var/www/html/shope-ease
+            # Set proper ownership for the files in Nginx's web directory
+            sudo chown -R www-data:www-data /var/www/html/shope-ease
 
-#             sudo chomd -R 755/var/www/html/shope-ease
+            sudo chomd -R 755/var/www/html/shope-ease
 
-#             sudo nginx -t
+            sudo nginx -t
 
-#             # Restart Nginx to apply the changes
-#             sudo systemctl restart nginx
+            # Restart Nginx to apply the changes
+            sudo systemctl restart nginx
 
-#             # Verify Nginx status
-#             sudo systemctl status nginx
+            # Verify Nginx status
+            sudo systemctl status nginx
 
-#             echo "Deployment successful!"
-#             exit
-#           EOF
+            echo "Deployment successful!"
+            exit
+          EOF
