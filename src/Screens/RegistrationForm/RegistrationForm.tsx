@@ -64,7 +64,7 @@ const RegistrationForm = () => {
   return (
     <div className={classes.container}>
       <div className={classes.formContainer}>
-        <div className={classes.formHeader}>Enter User Detail</div>
+        <div className={classes.formHeader}>👤 Enter User Detail</div>
         <form>
           {fields.map((item, i) => (
             <div
