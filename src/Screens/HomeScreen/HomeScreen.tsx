@@ -62,8 +62,14 @@ const HomeScreen = () => {
         </div>
       ) : (
         <>
-          <Abc />
-          <div style={{ width: "100%", textAlign: "right" }}>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Abc />
             <OutlinedInput
               style={{ border: "1px solid white", color: "white" }}
               color="secondary"
