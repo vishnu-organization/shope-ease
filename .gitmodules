@@ -1,0 +1,3 @@
+[submodule "src/subRepo"]
+	path = src/subRepo
+	url = https://github.com/vishnu-organization/subRepo.git
