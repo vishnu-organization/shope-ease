@@ -7,10 +7,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Ensure submodules are initialized and updated
-COPY .gitmodules .gitmodules
-RUN git submodule update --init --recursive
-
 # Copy the source files
 COPY . .
 
