@@ -3,7 +3,7 @@ name: Deploy React App to EC2 with Docker and Nginx
 on:
   push:
     branches:
-      - mainnn # Trigger on push to the main branch
+      - main # Trigger on push to the main branch
 
 jobs:
   deploy:
