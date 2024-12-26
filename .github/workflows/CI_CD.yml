@@ -55,6 +55,10 @@ jobs:
 
             git submodule update --init --recursive
 
+            ARVishnu
+
+            ${{ secrets.GH_PAT }}
+
             # Navigate to the project folder and build the app
             cd /home/ubuntu/workspace/shope-ease
             npm install
