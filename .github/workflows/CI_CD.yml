@@ -78,21 +78,23 @@ jobs:
               exit 1
             fi
 
-            # Stop Nginx before deployment
+            # Ensure Nginx is stopped before deploying the new build
             sudo systemctl stop nginx
 
-            # Remove old files from Nginx directory
+            # Remove old files from the Nginx directory
             sudo rm -rf /var/www/html/*
 
-            # Copy new build to Nginx's web directory
-            sudo cp -r dist/* /var/www/html/
+            # Copy the new build to Nginx's web directory
+            sudo cp -r dist/ /var/www/html/shope-ease
 
-            # Set ownership and permissions
-            sudo chown -R www-data:www-data /var/www/html/
-            sudo chmod -R 755 /var/www/html/
+            # Set proper ownership for the files in Nginx's web directory
+            sudo chown -R www-data:www-data /var/www/html/shope-ease
 
-            # Test and restart Nginx
+            sudo chomd -R 755/var/www/html/shope-ease
+
             sudo nginx -t
+
+            # Restart Nginx to apply the changes
             sudo systemctl restart nginx
 
             # Verify Nginx status
