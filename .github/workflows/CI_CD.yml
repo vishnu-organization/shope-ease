@@ -53,6 +53,8 @@ jobs:
               git pull origin main  # Pull the latest changes from the public repo
             fi
 
+            git submodule update --init --recursive
+
             # Navigate to the project folder and build the app
             cd /home/ubuntu/workspace/shope-ease
             npm install
