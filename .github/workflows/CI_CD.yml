@@ -10,28 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code, including submodules
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_PAT }}
-          submodules: recursive
+          submodules: recursive # Ensure submodules are updated recursively
 
+      # Step 2: Debug folder structure (optional)
       - name: Debug folder structure
         run: |
           echo "Workspace folder structure:"
           ls -R src
 
+      # Step 3: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18" # Adjust Node.js version as per your requirements
 
+      # Step 4: Install dependencies
       - name: Install dependencies
         run: npm install
 
+      # Step 5: Build the React app
       - name: Build React app
         run: npm run build # Builds the React app into the dist folder
 
+      # Step 6: Deploy to EC2 with Nginx
       - name: Deploy to EC2 with Nginx
         run: |
           # Write the private SSH key from GitHub Secrets to a file
@@ -45,22 +51,21 @@ jobs:
             # Navigate to workspace directory
             cd /home/ubuntu/workspace
 
-            # Clone the repository (no need for authentication as repo is public)
+            # Clone the repository if it doesn't exist
             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
               git clone https://ARVishnu:${{ secrets.GH_PAT }}@github.com/first-repo-vishnu/shope-ease.git shope-ease
             else
               cd /home/ubuntu/workspace/shope-ease
-              git pull origin main  # Pull the latest changes from the public repo
+              git pull origin main  # Pull the latest changes
             fi
 
+            # Ensure submodules are updated recursively
             git submodule update --init --recursive
 
-            ARVishnu
-
-            ${{ secrets.GH_PAT }}
-
-            # Navigate to the project folder and build the app
+            # Navigate to the project folder
             cd /home/ubuntu/workspace/shope-ease
+
+            # Install dependencies and build the app
             npm install
             npm run build
 
@@ -70,23 +75,21 @@ jobs:
               exit 1
             fi
 
-            # Ensure Nginx is stopped before deploying the new build
+            # Stop Nginx before deployment
             sudo systemctl stop nginx
 
-            # Remove old files from the Nginx directory
+            # Remove old files from Nginx directory
             sudo rm -rf /var/www/html/*
 
-            # Copy the new build to Nginx's web directory
-            sudo cp -r dist/ /var/www/html/shope-ease
+            # Copy new build to Nginx's web directory
+            sudo cp -r dist/* /var/www/html/
 
-            # Set proper ownership for the files in Nginx's web directory
-            sudo chown -R www-data:www-data /var/www/html/shope-ease
+            # Set ownership and permissions
+            sudo chown -R www-data:www-data /var/www/html/
+            sudo chmod -R 755 /var/www/html/
 
-            sudo chomd -R 755/var/www/html/shope-ease
-
+            # Test and restart Nginx
             sudo nginx -t
-
-            # Restart Nginx to apply the changes
             sudo systemctl restart nginx
 
             # Verify Nginx status
