@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Debug folder structure
+        run: |
+          echo "Workspace folder structure:"
+          ls -R shope-ease/src
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
