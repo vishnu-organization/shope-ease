@@ -19,7 +19,7 @@ jobs:
       - name: Debug folder structure
         run: |
           echo "Workspace folder structure:"
-          ls -R shope-ease/src
+          ls -R src
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
