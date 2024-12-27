@@ -3,7 +3,7 @@ name: Deploy React App to EC2 with Docker and Nginx
 on:
   push:
     branches:
-      - mainnn # Trigger on push to the main branch
+      - main # Trigger on push to the main branch
 
 jobs:
   deploy:
@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          submodules: recursive # Ensure submodules are updated recursively
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
