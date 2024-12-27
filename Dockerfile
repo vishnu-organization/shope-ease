@@ -3,6 +3,10 @@ FROM node:18 AS build
 
 WORKDIR /app
 
+
+COPY .gitmodules .gitmodules
+RUN git submodule update --init --recursive
+
 # Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install

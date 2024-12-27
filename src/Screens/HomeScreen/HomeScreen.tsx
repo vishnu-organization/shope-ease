@@ -65,11 +65,9 @@ const HomeScreen = () => {
           <div
             style={{
               width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
+              textAlign: "end",
             }}
           >
-            <Abc />
             <OutlinedInput
               style={{ border: "1px solid white", color: "white" }}
               color="secondary"
@@ -78,6 +76,10 @@ const HomeScreen = () => {
               placeholder="Search for cards"
             />
           </div>
+          <div style={{ width: "100%", textAlign: "center" }}>
+            <Abc />
+          </div>
+
           <div className={classes.mainContainer}>
             {searchData.length !== 0 ? (
               searchData.map((item: any, i) => (
