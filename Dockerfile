@@ -3,17 +3,21 @@ FROM node:18 AS build
 
 WORKDIR /app
 
-
+# Copy necessary files, including .gitmodules for submodule handling
 COPY .gitmodules .gitmodules
-RUN git submodule update --init --recursive
+
+# Ensure the `.git` directory is also copied for submodule initialization
+COPY .git .git
+
+# Initialize and update submodules
+RUN git submodule update --init --recursive || echo "Skipping submodule initialization"
 
 # Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-
 # Copy the source files
-COPY . .
+COPY . /app
 
 # Build the React app
 RUN npm run build
