@@ -3,7 +3,7 @@ name: CI/CD_2
 on:
   push:
     branches:
-      - mainnn # Trigger on push to the main branch
+      - main # Trigger on push to the main branch
 
 jobs:
   deploy:
