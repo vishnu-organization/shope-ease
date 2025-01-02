@@ -1,4 +1,4 @@
-name: Deploy React App to AWS EC2
+name: CI/CD_1
 
 on:
   push:
