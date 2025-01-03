@@ -51,24 +51,22 @@ jobs:
             # Navigate to workspace directory
             cd /home/ubuntu/workspace
 
-            # Clone the repository if it doesn't exist
+            # Clone the repository (no need for authentication as repo is public)
             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
-              git clone https://ARVishnu:${{ secrets.GH_PAT }}@github.com/vishnu-organization/shope-ease.git shope-ease
+              git clone https://ARVishnu:${{ secrets.GH_PAT }}@github.com/first-repo-vishnu/shope-ease.git shope-ease
             else
               cd /home/ubuntu/workspace/shope-ease
-              git pull origin main  # Pull the latest changes
+              git pull origin main  # Pull the latest changes from the public repo
             fi
 
-            # Set Git credentials for submodules
-            git config --global url."https://ARVishnu:${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
-
-            # Initialize and update submodules
             git submodule update --init --recursive
 
-            # Navigate to the project folder
-            cd /home/ubuntu/workspace/shope-ease
+            ARVishnu
 
-            # Install dependencies and build the app
+            ${{ secrets.GH_PAT }}
+
+            # Navigate to the project folder and build the app
+            cd /home/ubuntu/workspace/shope-ease
             npm install
             npm run build
 
