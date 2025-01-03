@@ -22,7 +22,6 @@ const Card = ({ title, description, imgUrl }: Props) => {
       <p
         style={{
           fontWeight: "bold",
-          textDecoration: "underline",
           color: "white",
         }}
       >
