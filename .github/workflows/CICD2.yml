@@ -10,17 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
+      # Step 1: Checkout repository with submodules
       - name: Checkout repository with submodules
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_PAT }}
           submodules: false # Avoid auto-initialization of submodules
 
-      # Step 2: Initialize and update submodules
+      # Step 2: Initialize and update submodules with authentication
       - name: Initialize submodules
         run: |
-          git submodule update --init --recursive
+          git submodule sync
+          git -c http.extraHeader="Authorization: Bearer ${{ secrets.GH_PAT }}" submodule update --init --recursive
+
+      # Step 3: Debug submodule configuration (Optional)
+      - name: Debug submodule configuration
+        run: |
+          git submodule status
+          git config --get-regexp submodule
 
       # Step 3: Debug folder structure (Optional)
       - name: Debug folder structure
