@@ -53,7 +53,7 @@ jobs:
 
             # Clone the repository if it doesn't exist
             if [ ! -d "/home/ubuntu/workspace/shope-ease/.git" ]; then
-              git clone https://ARVishnu:${{ secrets.GH_PAT }}@github.com/shope-ease.git shope-ease
+              git clone https://ARVishnu:${{ secrets.GH_PAT }}@github.com/vishnu-organization/shope-ease.git shope-ease
             else
               cd /home/ubuntu/workspace/shope-ease
               git pull origin main  # Pull the latest changes
