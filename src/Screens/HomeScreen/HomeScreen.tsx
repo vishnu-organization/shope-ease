@@ -3,7 +3,7 @@ import axios from "axios";
 import { CircularProgress, OutlinedInput } from "@mui/material";
 import { useStyles } from "./HomeScreen.styles";
 import { Card } from "../Shared";
-import Abc from "../../subRepo/Abc";
+// import Abc from "../../subRepo/Abc";
 
 const HomeScreen = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -76,9 +76,9 @@ const HomeScreen = () => {
               placeholder="Search for cards"
             />
           </div>
-          <div style={{ width: "100%", textAlign: "center" }}>
+          {/* <div style={{ width: "100%", textAlign: "center" }}>
             <Abc />
-          </div>
+          </div> */}
 
           <div className={classes.mainContainer}>
             {searchData.length !== 0 ? (

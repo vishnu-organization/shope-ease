@@ -1,6 +1,6 @@
 import "./App.css";
 import { Navbar } from "./Components";
-import { HomeScreen, RegistrationForm } from "./Screens";
+import { EyeSegmentation, HomeScreen, RegistrationForm } from "./Screens";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App() {
@@ -26,6 +26,7 @@ function App() {
           <Routes>
             <Route path="/" element={<RegistrationForm />} />
             <Route path="/products" element={<HomeScreen />} />
+            <Route path="/eye-segmentation" element={<EyeSegmentation />} />
           </Routes>
         </div>
       </Router>
