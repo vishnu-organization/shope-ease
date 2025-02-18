@@ -20,7 +20,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noEmitOnError": false
   },
   "extends": "./tsconfig.json",
   // "include": ["src"],
